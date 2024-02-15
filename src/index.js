@@ -2,7 +2,7 @@ import axios from "axios";
 import dotenv from "dotenv";
 import { WebhookClient } from "discord.js";
 import { TicketService } from "./services/ticketService.js";
-import TicketModel from "./models/ticketModel.js"
+import TicketModel from "./models/ticketModel.js";
 
 dotenv.config();
 
@@ -34,7 +34,9 @@ async function atualizarInformacoes() {
 
     for (const ticket of novosTickets) {
       const { id, status, created_at } = ticket;
-      await TicketService.createOrUpdateTicket(new TicketModel(id, status, created_at));
+      await TicketService.createOrUpdateTicket(
+        new TicketModel(id, status, created_at)
+      );
       notificarDiscord(
         `>>> ## Novo ticket\n\n${formatarMensagemTicket(ticket)}\n\n`
       );
@@ -54,7 +56,9 @@ async function atualizarInformacoes() {
 
     for (const ticket of ticketsToUpdate) {
       const { id, status, created_at } = ticket;
-      await TicketService.createOrUpdateTicket(new TicketModel(id, status, created_at));
+      await TicketService.createOrUpdateTicket(
+        new TicketModel(id, status, created_at)
+      );
     }
   } catch (err) {
     console.error("Erro ao atualizar tickets: ", err.message);
@@ -76,8 +80,16 @@ function notificarDiscord(mensagem) {
     );
 }
 
+function getDateString(date) {
+  return new Date(date).toLocaleString("pt-BR");
+}
+
 function formatarMensagemTicket(ticket) {
-  return `**Cliente:** ${ticket?.requester?.name}\n**Empresa:** ${ticket?.company?.name}\n**Nome do Ticket:** ${ticket?.subject}\n**Data de Criação:** ${ticket["created_at"]}`;
+  return `**Cliente:** ${ticket?.requester?.name}\n**Empresa:** ${
+    ticket?.company?.name
+  }\n**Nome do Ticket:** ${
+    ticket?.subject
+  }\n**Data de Criação:** ${getDateString(ticket["created_at"])}`;
 }
 
 async function intit() {
@@ -86,9 +98,11 @@ async function intit() {
   if (ticketsNaTabela.length === 0) {
     const tickets = await obterTickets();
 
-    for(const ticket of tickets) {
+    for (const ticket of tickets) {
       const { id, status, created_at } = ticket;
-      await TicketService.createOrUpdateTicket(new TicketModel(id, status, created_at));
+      await TicketService.createOrUpdateTicket(
+        new TicketModel(id, status, created_at)
+      );
     }
   }
 
