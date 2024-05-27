@@ -11,6 +11,7 @@ const {
   DISCORD_WEBHOOK_URL,
   HELPKIT_SESSION_COOKIE,
   INTERVALO_EM_MINUTOS,
+  URL_HELPDESK,
 } = process.env;
 
 const webhookClient = new WebhookClient({ url: DISCORD_WEBHOOK_URL });
@@ -38,7 +39,7 @@ async function atualizarInformacoes() {
         new TicketModel(id, status, created_at)
       );
       notificarDiscord(
-        `>>> ## Novo ticket\n\n${formatarMensagemTicket(ticket)}\n\n`
+        `>>> ## Novo ticket #${ticket.id}\n\n${formatarMensagemTicket(ticket)}\n\n`
       );
     }
 
@@ -89,7 +90,7 @@ function formatarMensagemTicket(ticket) {
     ticket?.company?.name
   }\n**Nome do Ticket:** ${
     ticket?.subject
-  }\n**Data de Criação:** ${getDateString(ticket["created_at"])}`;
+  }\n**Data de Criação:** ${getDateString(ticket["created_at"])}\n\n[Visualizar](${URL_HELPDESK}/${ticket.id})**`;
 }
 
 async function intit() {
