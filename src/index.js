@@ -90,7 +90,7 @@ function formatarMensagemTicket(ticket) {
     ticket?.company?.name
   }\n**Nome do Ticket:** ${
     ticket?.subject
-  }\n**Data de Criação:** ${getDateString(ticket["created_at"])}\n\n[Visualizar](${URL_HELPDESK}/${ticket.id})**`;
+  }\n**Data de Criação:** ${getDateString(ticket["created_at"])}\n\n[Visualizar](${URL_HELPDESK}/${ticket.id})`;
 }
 
 async function intit() {
