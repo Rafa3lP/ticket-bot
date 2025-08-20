@@ -1,4 +1,4 @@
-import { TicketRepository } from "../repository/ticketRepository.js";
+import { TicketRepository } from "../repository/TicketRepository.js";
 
 export const TicketService = {
   getAllTickets: async () => {

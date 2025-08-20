@@ -1,0 +1,62 @@
+{
+  "status": 2,
+  "id": 360,
+  "priority": 1,
+  "source": 2,
+  "subject": "CLIENTES COM PROBLEMAS NO ACESSO AO APLICATIVO",
+  "created_at": "2024-02-15T12:07:44Z",
+  "updated_at": "2024-02-15T12:07:45Z",
+  "stats": {
+    "agent_responded_at": null,
+    "requester_responded_at": null,
+    "first_responded_at": null,
+    "status_updated_at": "2024-02-15T12:07:44Z",
+    "reopened_at": null,
+    "resolved_at": null,
+    "closed_at": null,
+    "pending_since": null
+  },
+  "requester": {
+    "name": "Raphael Pinheiro",
+    "job_title": "Melhoria Contínua",
+    "email": "mc@somaurbanismo.com.br",
+    "has_email": true,
+    "active": true,
+    "deleted": false,
+    "blocked": false
+  },
+  "company": {
+    "name": "Soma Urbanismo"
+  }
+}
+
+
+// STATUS 2 -> novo
+// STATUS 3 -> pendente
+filter values:
+spam, 
+deleted, 
+overdue, 
+pending, 
+open, 
+due_today, 
+new, 
+monitored_by, 
+new_and_my_open, 
+all_tickets, 
+unresolved, 
+article_feedback, 
+unresolved_article_feedback, 
+my_article_feedback, 
+mentioned_tickets, 
+watching, on_hold, 
+raised_by_me, 
+shared_by_me, 
+shared_with_me, 
+unresolved_service_tasks, 
+unassigned_service_tasks, 
+overdue_service_tasks, 
+service_tasks_due_today, 
+service_tasks_starting_today, 
+failed_emails, 
+escalation_risk_tickets

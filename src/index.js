@@ -1,8 +1,7 @@
-import axios from "axios";
 import dotenv from "dotenv";
-import { WebhookClient } from "discord.js";
-import { TicketService } from "./services/ticketService.js";
-import TicketModel from "./models/ticketModel.js";
+import { NotificationService } from "./services/DiscordNotificationService.js";
+import { UpdateTickets } from "./use-cases/UpdateTickets.js";
+import { TicketRepository } from "./repository/TicketRepository.js";
 
 dotenv.config();
 
@@ -14,8 +13,6 @@ const {
   URL_HELPDESK,
 } = process.env;
 
-const webhookClient = new WebhookClient({ url: DISCORD_WEBHOOK_URL });
-
 const headers = {
   "Accept-Encoding": "gzip, deflate, br",
   accept: "application/json, text/javascript, */*; q=0.01",
@@ -23,92 +20,21 @@ const headers = {
   Cookie: `_helpkit_session=${HELPKIT_SESSION_COOKIE}`,
 };
 
-async function atualizarInformacoes() {
-  try {
-    console.log("Buscando novas informações");
-    const tickets = await obterTickets();
-    const ticketsNaTabela = await TicketService.getAllTickets();
+const ticketRepository = new TicketRepository();
+const notificationService = new NotificationService(DISCORD_WEBHOOK_URL);
 
-    const novosTickets = tickets.filter(
-      (t) => !ticketsNaTabela.find((ticket) => t.id === ticket.id)
-    );
+const updateTickets = new UpdateTickets({
+  ticketRepository,
+  notificationService,
+  config: { URL_TICKETS, headers, URL_HELPDESK },
+});
 
-    for (const ticket of novosTickets) {
-      const { id, status, created_at } = ticket;
-      await TicketService.createOrUpdateTicket(
-        new TicketModel(id, status, created_at)
-      );
-      notificarDiscord(
-        `>>> ## Novo ticket #${ticket.id}\n\n${formatarMensagemTicket(ticket)}\n\n`
-      );
-    }
-
-    const ticketsToDelete = ticketsNaTabela.filter(
-      (t) => !tickets.find((ticket) => t.id === ticket.id)
-    );
-
-    for (const { id } of ticketsToDelete) {
-      await TicketService.deleteTicket(id);
-    }
-
-    const ticketsToUpdate = tickets.filter(
-      (t) => !!ticketsNaTabela.find((ticket) => t.id === ticket.id)
-    );
-
-    for (const ticket of ticketsToUpdate) {
-      const { id, status, created_at } = ticket;
-      await TicketService.createOrUpdateTicket(
-        new TicketModel(id, status, created_at)
-      );
-    }
-  } catch (err) {
-    console.error("Erro ao atualizar tickets: ", err.message);
-    notificarDiscord("Erro ao atualizar tickets: " + err.message);
-  }
+async function init() {
+  await updateTickets.execute();
+  setInterval(
+    async () => await updateTickets.execute(),
+    parseInt(INTERVALO_EM_MINUTOS) * 60 * 1000
+  );
 }
 
-async function obterTickets() {
-  const response = await axios.get(URL_TICKETS, { headers });
-  return response.data.tickets;
-}
-
-function notificarDiscord(mensagem) {
-  webhookClient
-    .send(mensagem)
-    .then(() => console.log("Notificação enviada para o Discord"))
-    .catch((err) =>
-      console.error("Erro ao enviar notificação para o Discord:", err)
-    );
-}
-
-function getDateString(date) {
-  return new Date(date).toLocaleString("pt-BR");
-}
-
-function formatarMensagemTicket(ticket) {
-  return `**Cliente:** ${ticket?.requester?.name}\n**Empresa:** ${
-    ticket?.company?.name
-  }\n**Nome do Ticket:** ${
-    ticket?.subject
-  }\n**Data de Criação:** ${getDateString(ticket["created_at"])}\n\n[Visualizar](${URL_HELPDESK}/${ticket.id})`;
-}
-
-async function intit() {
-  const ticketsNaTabela = await TicketService.getAllTickets();
-
-  if (ticketsNaTabela.length === 0) {
-    const tickets = await obterTickets();
-
-    for (const ticket of tickets) {
-      const { id, status, created_at } = ticket;
-      await TicketService.createOrUpdateTicket(
-        new TicketModel(id, status, created_at)
-      );
-    }
-  }
-
-  await atualizarInformacoes();
-  setInterval(atualizarInformacoes, parseInt(INTERVALO_EM_MINUTOS) * 60 * 1000);
-}
-
-intit();
+init();
